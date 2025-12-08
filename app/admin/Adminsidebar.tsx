@@ -64,7 +64,19 @@ const AdminLayout = ({ children, version }: AdminLayoutProps) => {
               ☰
             </button>
             <h5 className="mb-0">Admin Dashboard</h5>
-            <button className="btn btn-danger btn-sm">Logout</button>
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={async () => {
+                try {
+                  const res = await fetch("/logout", { method: "POST" });
+                  if (res.ok) {
+                    window.location.href = "/login";
+                  }
+                } catch (_) {}
+              }}
+            >
+              Logout
+            </button>
           </header>
 
           {/* SEARCH INPUT */}

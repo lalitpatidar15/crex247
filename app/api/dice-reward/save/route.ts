@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { connectDB } from "@/app/lib/db";
 import DiceReward from "@/app/models/DiceReward";
 
 export async function POST(req: Request) {
   try {
+    const cookieStore = await cookies();
+    const auth = cookieStore.get("admin-auth")?.value;
+    if (!auth) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
     await connectDB();
     await DiceReward.syncIndexes();
     const body = await req.json();

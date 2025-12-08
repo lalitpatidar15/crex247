@@ -8,8 +8,15 @@ export function middleware(req: NextRequest) {
   // Allow login page and API login
   const isLoginPath = pathname.startsWith("/login") || pathname.startsWith("/api/admin/login");
 
-  // Protect admin pages
-  if (!auth && pathname.startsWith("/admin") && !isLoginPath) {
+  const isAdminPath =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/v1/admin") ||
+    pathname.startsWith("/v2/admin") ||
+    pathname.startsWith("/v3/admin") ||
+    pathname.startsWith("/v4/admin");
+
+  // Protect admin pages across versions
+  if (!auth && isAdminPath && !isLoginPath) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
@@ -31,6 +38,10 @@ export function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/admin/:path*",
+    "/v1/admin/:path*",
+    "/v2/admin/:path*",
+    "/v3/admin/:path*",
+    "/v4/admin/:path*",
     "/api/:path*",
   ],
 };

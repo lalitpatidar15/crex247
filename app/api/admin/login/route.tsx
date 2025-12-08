@@ -32,24 +32,24 @@ export async function POST(req: Request) {
       message: "Login Successful",
     });
 
-    // ✅ Set cookies
+    // ✅ Set cookies (10 minutes session)
     res.cookies.set("admin-auth", admin.adminId, {
       httpOnly: true,
       path: "/",
-      maxAge: 60 * 60 * 24, // 1 day
+      maxAge: 60 * 10,
     });
 
     res.cookies.set("admin-role", admin.role, {
       httpOnly: true,
       path: "/",
-      maxAge: 60 * 60 * 24,
+      maxAge: 60 * 10,
     });
 
     // ✅ Save admin email/name for client display
     res.cookies.set("admin-name", admin.email, {
-      httpOnly: false, // client-side read ke liye
+      httpOnly: false,
       path: "/",
-      maxAge: 60 * 60 * 24,
+      maxAge: 60 * 10,
     });
 
     return res;

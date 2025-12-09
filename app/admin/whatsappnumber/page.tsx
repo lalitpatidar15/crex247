@@ -17,6 +17,7 @@ const WhatsAppNumbers = ({ version = "v1" }: { version?: string }) => {
   useEffect(() => {
     fetchNumbers();
   }, []);
+  
 
   const fetchNumbers = async () => {
     try {

@@ -17,10 +17,21 @@ export default function LoginPage() {
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, version }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
+        // Redirect based on role
+        if (data.role === "superadmin") {
+          window.location.href = "/superadmin";
+          return;
+        }
+        // Admin: ensure selected version is allowed for this admin
+        const allowed = Array.isArray(data.versions) ? data.versions : [];
+        if (!allowed.length || !allowed.includes(version)) {
+          setMessage("Selected version is not allowed for this admin");
+          return;
+        }
         window.location.href = `/${version}/admin`;
       } else {
         setMessage(data.message || "Login failed");

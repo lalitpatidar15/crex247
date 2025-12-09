@@ -22,6 +22,13 @@ interface AdminLayoutProps {
 const AdminLayout = ({ children, version }: AdminLayoutProps) => {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [role, setRole] = useState<string>("");
+
+  // Read role from cookie on client
+  if (typeof window !== "undefined" && !role) {
+    const match = document.cookie.match(/(?:^|; )admin-role=([^;]+)/);
+    if (match) setRole(decodeURIComponent(match[1]));
+  }
 
   return (
     <SearchContext.Provider value={{ searchQuery, setSearchQuery }}>
@@ -50,6 +57,30 @@ const AdminLayout = ({ children, version }: AdminLayoutProps) => {
                 📞 WhatsApp Number
               </Link>
             </li>
+            {role === "superadmin" && (
+              <>
+                <li className="nav-item">
+                  <Link href={`/admin`} className="nav-link text-white">
+                    🧭 Admin Home
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link href={`/admin/users`} className="nav-link text-white">
+                    👤 Manage Admins
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link href={`/admin/all-rolls`} className="nav-link text-white">
+                    📚 All Rolls (v1–v4)
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link href={`/admin/all-whatsapp`} className="nav-link text-white">
+                    📞 All WhatsApp Numbers
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
         </div>
 
@@ -63,39 +94,50 @@ const AdminLayout = ({ children, version }: AdminLayoutProps) => {
             >
               ☰
             </button>
-            <h5 className="mb-0">Admin Dashboard</h5>
-            <button
-              className="btn btn-danger btn-sm"
-              onClick={async () => {
-                try {
-                  const res = await fetch("/logout", { method: "POST" });
-                  if (res.ok) {
-                    window.location.href = "/login";
-                  }
-                } catch (_) {}
-              }}
-            >
-              Logout
-            </button>
+            <div className="d-flex align-items-center gap-2">
+              <h5 className="mb-0">Admin Dashboard</h5>
+              {role === "superadmin" && (
+                <div className="d-none d-md-flex align-items-center gap-1 ms-3">
+                  <span className="badge bg-light text-dark">Switch:</span>
+                  <Link href="/v1/admin" className="btn btn-outline-light btn-sm">v1</Link>
+                  <Link href="/v2/admin" className="btn btn-outline-light btn-sm">v2</Link>
+                  <Link href="/v3/admin" className="btn btn-outline-light btn-sm">v3</Link>
+                  <Link href="/v4/admin" className="btn btn-outline-light btn-sm">v4</Link>
+                </div>
+              )}
+              <button
+                className="btn btn-danger btn-sm ms-2"
+                onClick={async () => {
+                  try {
+                    const res = await fetch("/logout", { method: "POST" });
+                    if (res.ok) {
+                      window.location.href = "/login";
+                    }
+                  } catch (_) {}
+                }}
+              >
+                Logout
+              </button>
+            </div>
           </header>
 
           {/* SEARCH INPUT */}
-      <div className="bg-light p-2 shadow-sm">
-  <div className="container text-center">
-    <input
-      type="text"
-      className="form-control"
-      placeholder="🔍 Search ..."
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-      style={{
-        maxWidth: "350px", 
-        width: "100%",      
-        margin: "",   
-      }}
-    />
-  </div>
-</div>
+          <div className="bg-light p-2 shadow-sm">
+            <div className="container text-center">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="🔍 Search ..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  maxWidth: "350px",
+                  width: "100%",
+                  margin: "",
+                }}
+              />
+            </div>
+          </div>
 
           <main className="p-3 bg-light min-vh-100">{children}</main>
         </div>

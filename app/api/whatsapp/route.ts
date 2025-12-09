@@ -30,6 +30,13 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     await connectDB();
+    // Only admins can update version site data
+    const { cookies } = await import("next/headers");
+    const store = await cookies();
+    const role = store.get("admin-role")?.value;
+    if (!role || (role !== "admin" && role !== "superadmin")) {
+      return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
+    }
     const body = await req.json();
     const { version, ...updateData } = body;
     if (!version) {

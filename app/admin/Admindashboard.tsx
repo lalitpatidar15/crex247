@@ -13,8 +13,6 @@ interface RollType {
   claimed?: boolean;
 }
 
-const APP_VERSION = "v1.0.0"; // ✅ Version Added
-
 const AdminDashboard = ({version}: {version: string}) => {
   const [rolls, setRolls] = useState<RollType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -133,7 +131,7 @@ const AdminDashboard = ({version}: {version: string}) => {
                       {roll.claimed ? "Claimed" : "Claim"}
                     </button>
                   </td>
-                   <td className="text-center fs-4">:</td>
+                  <td>{version}</td>
                 </tr>
               ))}
             </tbody>

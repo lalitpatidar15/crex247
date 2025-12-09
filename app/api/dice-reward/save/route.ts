@@ -10,6 +10,10 @@ export async function POST(req: Request) {
     if (!auth) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
+    const role = cookieStore.get("admin-role")?.value;
+    if (!role || (role !== "admin" && role !== "superadmin")) {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    }
     await connectDB();
     await DiceReward.syncIndexes();
     const body = await req.json();

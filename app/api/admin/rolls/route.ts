@@ -33,6 +33,13 @@ export async function POST(req: Request) {
     else return NextResponse.json({ success: false, message: "version required" }, { status: 400 });
 
     if (body.action === "claim") {
+      // Only authenticated admins can mark claims
+      const { cookies } = await import("next/headers");
+      const store = await cookies();
+      const role = store.get("admin-role")?.value;
+      if (!role || (role !== "admin" && role !== "superadmin")) {
+        return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
+      }
       const { id } = body;
       await Model.findByIdAndUpdate(id, { claimed: true });
       return NextResponse.json(
@@ -62,6 +69,13 @@ export async function POST(req: Request) {
 export async function DELETE(req: Request) {
   try {
     await connectDB();
+    // Only superadmin can delete rolls
+    const { cookies } = await import("next/headers");
+    const store = await cookies();
+    const role = store.get("admin-role")?.value;
+    if (role !== "superadmin") {
+      return NextResponse.json({ success: false, message: "Forbidden" }, { status: 403 });
+    }
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
     const version = searchParams.get("version");

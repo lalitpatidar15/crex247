@@ -1,19 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { connectDB } from "@/app/lib/db";
-import {
-  WhatsappV1,
-  WhatsappV2,
-  WhatsappV3,
-  WhatsappV4,
-} from "@/app/models/Whatsapp";
-
-const modelMap: any = {
-  v1: WhatsappV1,
-  v2: WhatsappV2,
-  v3: WhatsappV3,
-  v4: WhatsappV4,
-};
+import { Whatsapp } from "@/app/models/Whatsapp";
 
 // GET (Fetch WhatsApp numbers)
 export async function GET(req: NextRequest) {
@@ -21,12 +9,7 @@ export async function GET(req: NextRequest) {
     await connectDB();
     const url = new URL(req.url);
     const version = url.searchParams.get("version") || "v1";
-    const Model = modelMap[version];
-
-    if (!Model)
-      return NextResponse.json({ error: "Invalid version" }, { status: 400 });
-
-    const data = await Model.findOne();
+    const data = await Whatsapp.findOne({ version });
 
     return NextResponse.json(
       data || {
@@ -34,7 +17,6 @@ export async function GET(req: NextRequest) {
         deposit: "",
         withdrawal: "",
         support: "",
-        number: "",
       },
       { status: 200 }
     );
@@ -55,20 +37,19 @@ export async function POST(req: NextRequest) {
     await connectDB();
     const url = new URL(req.url);
     const version = url.searchParams.get("version") || "v1";
-    const Model = modelMap[version];
-
-    if (!Model)
-      return NextResponse.json({ error: "Invalid version" }, { status: 400 });
 
     const body = await req.json();
 
-    if (!body.number)
-      return NextResponse.json({ error: "Number required" }, { status: 400 });
+    // No longer require `number` field; accept partial updates
 
-    const saved = await Model.findOneAndUpdate({}, body, {
-      upsert: true,
-      new: true,
-    });
+    const saved = await Whatsapp.findOneAndUpdate(
+      { version },
+      { ...body, version },
+      {
+        upsert: true,
+        new: true,
+      }
+    );
 
     return NextResponse.json({ success: true, data: saved }, { status: 200 });
   } catch (err) {

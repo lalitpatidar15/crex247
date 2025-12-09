@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import connectDB from "../../../Utils/ConectDb";
 import { RollV1, RollV2, RollV3, RollV4 } from "@/app/models/Roll";
+import { connectDB } from "@/app/lib/db";
 
 export async function GET() {
   await connectDB();
